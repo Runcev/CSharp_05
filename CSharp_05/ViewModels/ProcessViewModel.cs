@@ -129,7 +129,7 @@ namespace CSharp_05.ViewModels
             {
                 if (String.IsNullOrWhiteSpace(SelectedProcess.Value.FilePath))
                 {
-                    MessageBox.Show("Access denied", "Error");
+                    MessageBox.Show("Access denied");
                     return;
                 }
 

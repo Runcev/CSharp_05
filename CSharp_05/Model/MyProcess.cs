@@ -38,12 +38,12 @@ namespace CSharp_05.Model
 
         #region Fields
 
-        private Process _process;
-        private PerformanceCounter _counter;
+        private readonly Process _process;
+        private readonly PerformanceCounter _counter;
         private long _lastTime = -1;
         private long _workingSet = 0;
         private float _cpu;
-        private DateTime _startTime = new DateTime();
+        private readonly DateTime _startTime = new DateTime();
 
         #endregion
 

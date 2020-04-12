@@ -15,10 +15,7 @@ namespace CSharp_05.Tools.Managers
 
         public static Random r = new Random();
 
-        internal static List<Process> PrList
-        {
-            get { return _prList; }
-        }
+        internal static List<Process> PrList => _prList;
 
         private static List<Process> _prList = new List<Process>(Process.GetProcesses());
 
@@ -33,7 +30,7 @@ namespace CSharp_05.Tools.Managers
 
         internal static void CloseApp()
         {
-            MessageBox.Show("ShutDown");
+            MessageBox.Show("Exit");
             StopThreads?.Invoke();
             Environment.Exit(1);
         }

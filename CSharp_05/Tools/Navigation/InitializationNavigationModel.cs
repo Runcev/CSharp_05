@@ -14,7 +14,8 @@ namespace CSharp_05.Tools.Navigation
         {
             switch (viewType)
             {
-                case ViewType.DataView: ViewDictionary.Add(viewType, new ProcessView());
+                case ViewType.DataView:
+                    ViewsDictionary.Add(viewType, new ProcessView());
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(viewType), viewType, null);

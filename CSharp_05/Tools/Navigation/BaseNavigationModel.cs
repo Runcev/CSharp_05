@@ -7,18 +7,18 @@ namespace CSharp_05.Tools.Navigation
         protected BaseNavigationModel(IContentOwner contentOwner)
         {
             ContentOwner = contentOwner;
-            ViewDictionary = new Dictionary<ViewType, INavigatable>();
+            ViewsDictionary = new Dictionary<ViewType, INavigatable>();
         }
 
         protected IContentOwner ContentOwner { get; }
 
-        protected Dictionary<ViewType, INavigatable> ViewDictionary { get; }
+        protected Dictionary<ViewType, INavigatable> ViewsDictionary { get; }
 
         public void Navigate(ViewType viewType)
         {
-            if (!ViewDictionary.ContainsKey(viewType))
+            if (!ViewsDictionary.ContainsKey(viewType))
                 InitializeView(viewType);
-            ContentOwner.ContentControl.Content = ViewDictionary[viewType];
+            ContentOwner.ContentControl.Content = ViewsDictionary[viewType];
         }
 
         protected abstract void InitializeView(ViewType viewType);

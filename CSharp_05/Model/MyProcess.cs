@@ -10,89 +10,12 @@ namespace CSharp_05.Model
 {
     class MyProcess : INotifyPropertyChanged
     {
-
-
-        #region Fields
-
-        private readonly Process _process;
-        private readonly PerformanceCounter _cpuUsage;
-        private long _lastTime = -1;
-        private long _workingSet = 0;
-        private float _cpu;
-        private readonly DateTime _startTime = new DateTime();
-
-        #endregion
-
-
-        #region Properties
-
-        public string Name { get; set; }
-
-        public int Id { get; set; }
-
-        public string FilePath { get; set; }
-
-        public int ThrCount => _process.Threads.Count;
-
-        public bool IsActive => _process.Responding;
-
-        public float Cpu => _cpu;
-
-        public long WorkingSet => _workingSet;
-
-        public string MemoryPercent => "Not available";
-        public string MemoryMb => (_workingSet / (1024.0 * 1024.0)).ToString("0.00");
-
-        public string CPU => _cpu.ToString("0.00");
-
-        public string StartTime
-        {
-            get
-            {
-                try
-                {
-                    return _process.StartTime.ToString(" dd/MM/yyyy HH:mm:ss");
-                }
-                catch (Exception)
-                {
-                    return "Access denied";
-                }
-            }
-        }
-
-        public string User
-        {
-            get
-            {
-                try
-                {
-                    OpenProcessToken(_process.Handle, 8, out var processHandle);
-                    var wi = new WindowsIdentity(processHandle);
-                    var user = wi.Name;
-                    return user;
-                }
-                catch
-                {
-                    return "Unknown user";
-                }
-            }
-        }
-
-        [DllImport("advapi32.dll", SetLastError = true)]
-        private static extern bool OpenProcessToken(IntPtr processHandle, uint desiredAccess, out IntPtr tokenHandle);
-        [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool CloseHandle(IntPtr hObject);
-        #endregion
-
-
         public MyProcess(Process process)
         {
             _process = process;
-            Name = _process.ProcessName;
-            Id = _process.Id;
-
-            _cpuUsage = new PerformanceCounter("Process", "% Processor Time", _process.ProcessName, _process.MachineName);
+            Name = process.ProcessName;
+            Id = process.Id;
+            _counter = new PerformanceCounter("Process", "% Processor Time", process.ProcessName, process.MachineName);
 
             try
             {
@@ -112,6 +35,38 @@ namespace CSharp_05.Model
                 // ignored
             }
         }
+
+        #region Fields
+
+        private Process _process;
+        private PerformanceCounter _counter;
+        private long _lastTime = -1;
+        private long _workingSet = 0;
+        private float _cpu;
+        private DateTime _startTime = new DateTime();
+
+        #endregion
+
+
+        #region Properties
+
+        public string Name { get; set; }
+        public int Id { get; set; }
+        public string FilePath { get; set; }
+
+        public float Cpu => _cpu;
+
+        public long WorkingSet => _workingSet;
+
+        public string MemoryPercent => "Not available";
+
+        public string MemoryMb => (_workingSet / (1024.0 * 1024.0)).ToString("0.00");
+
+        public bool IsActive => _process.Responding;
+
+        public string CPU => _cpu.ToString("0.00");
+
+        public string StartTime => _startTime.ToString(" dd/MM/yyyy HH:mm:ss") == " 01.01.0001 00:00:00" ? "Access denied" : _startTime.ToString(" dd/MM/yyyy HH:mm:ss");
 
         public ProcessModuleCollection Modules
         {
@@ -144,6 +99,8 @@ namespace CSharp_05.Model
             }
         }
 
+        #endregion
+
         public void TerminateProcess()
         {
             _process.Kill();
@@ -165,12 +122,12 @@ namespace CSharp_05.Model
                 {
                     _lastTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                     _cpu = 0;
-                    _cpuUsage.NextValue();
+                    _counter.NextValue();
                 }
                 else if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - _lastTime > 1000)
                 {
                     _lastTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                    _cpu = _cpuUsage.NextValue() / Environment.ProcessorCount;
+                    _cpu = _counter.NextValue() / Environment.ProcessorCount;
                 }
 
             }
@@ -183,6 +140,7 @@ namespace CSharp_05.Model
             OnPropertyChanged(nameof(MemoryMb));
             OnPropertyChanged(nameof(MemoryPercent));
             OnPropertyChanged(nameof(CPU));
+
         }
     }
 }

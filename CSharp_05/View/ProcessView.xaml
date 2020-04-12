@@ -46,11 +46,9 @@
                 <DataGridTextColumn     Header="ID"         Width="auto"   Binding="{Binding Value.Id}"/>
                 <DataGridTextColumn     Header="Name"       Width="auto"   Binding="{Binding Value.Name}" />
                 <DataGridCheckBoxColumn Header="Is Active"  Width="Auto"   Binding="{Binding Value.IsActive, Mode=OneWay}" IsReadOnly="True"/>
-                <DataGridTextColumn     Header="Threads"    Width="auto"   Binding="{Binding Value.ThrCount}"/>
-                <DataGridTextColumn     Header="User"       Width="auto"   Binding="{Binding Value.User}"/>
                 <DataGridTextColumn     Header="RAM, %"     Width="auto"   Binding="{Binding Value.MemoryPercent}" SortMemberPath="Value.WorkingSet" />
                 <DataGridTextColumn     Header="RAM, Mb"    Width="auto"   Binding="{Binding Value.MemoryMb}"  SortMemberPath="Value.WorkingSet" />
-                <DataGridTextColumn     Header="CPU, %"     Width="auto"   Binding="{Binding Value.CPU}"  SortMemberPath="Value.Cpu"/>
+                <DataGridTextColumn     Header="Cpu %"      Width="auto"   Binding="{Binding Value.CPU}"  SortMemberPath="Value.Cpu"/>
                 <DataGridTextColumn     Header="FilePath"   Width="100"    Binding="{Binding Value.FilePath}"  />
                 <DataGridTextColumn     Header="Start Time" Width="auto"   Binding="{Binding Value.StartTime, Mode=OneWay}"/>
             </DataGrid.Columns>
@@ -74,8 +72,8 @@
                     <DataGridTextColumn Header="Path" Binding="{Binding FileName}" />
                 </DataGrid.Columns>
             </DataGrid>
-
-            <TextBlock Text="Threads" FontSize="24" Padding="20 5" Grid.Row="2" HorizontalAlignment="Center"/>
+            <TextBlock Text="Threads" FontSize="24" Padding="20 5" Grid.Row="2" HorizontalAlignment="Left"/>
+            <TextBlock Text="{Binding ThreadsNumber}" FontSize="24" Padding="20 5" Grid.Row="2"  HorizontalAlignment="Right"/>
             <DataGrid Grid.Row="3" ItemsSource="{Binding ProcessThreads}" IsReadOnly="True" AutoGenerateColumns="False">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Thread Id" Binding="{Binding Id}" />

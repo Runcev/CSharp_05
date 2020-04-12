@@ -37,10 +37,7 @@ namespace CSharp_05.ViewModels
             _processMap = new ConcurrentDictionary<int, MyProcess>();
 
         private KeyValuePair<int, MyProcess> _selectedProcess;
-        private CollectionViewSource _viewSource = new CollectionViewSource();
-
-        private string[] _filterBy = { "Id", "Name", "Window Title" };
-        private string[] _sortBy = { "Id", "Name", "Window Title", "Memory Usage" };
+        private readonly CollectionViewSource _viewSource = new CollectionViewSource();
 
         private RelayCommand<object> _openCommand;
         private RelayCommand<object> _filterCommand;
@@ -51,7 +48,7 @@ namespace CSharp_05.ViewModels
         private Thread _workingThread2;
 
         private CancellationToken _token;
-        private CancellationTokenSource _tokenSource;
+        private readonly CancellationTokenSource _tokenSource;
 
         #endregion
 
@@ -71,61 +68,44 @@ namespace CSharp_05.ViewModels
 
         public string FilterText { get; set; }
 
-        public string[] FilterBy
-        {
-            get { return _filterBy; }
-        }
+        public string[] FilterBy { get; } = { "Id", "Name" };
 
-        public string[] SortBy
-        {
-            get { return _sortBy; }
-        }
+        public string[] SortBy { get; } = { "Id", "Name", "Memory Usage" };
 
 
         public int FilterByIndex { get; set; } = 1;
 
         public KeyValuePair<int, MyProcess> SelectedProcess
         {
-            get { return _selectedProcess; }
+            get => _selectedProcess;
             set
             {
                 _selectedProcess = value;
 
                 OnPropertyChanged();
-                OnPropertyChanged("ProcessModules");
-                OnPropertyChanged("ProcessThreads");
-                OnPropertyChanged("ThreadsNumber");
+                OnPropertyChanged(nameof(ProcessModules));
+                OnPropertyChanged(nameof(ProcessThreads));
+                OnPropertyChanged(nameof(ThreadsNumber));
             }
         }
 
 
-        public RelayCommand<object> OpenCommand
-        {
-            get
-            {
-                return _openCommand ?? (_openCommand = new RelayCommand<object>(OpenImplementation, CanDoWithProcess));
-            }
-        }
+        public RelayCommand<object> OpenCommand => _openCommand ??= new RelayCommand<object>(OpenImplementation, CanDoWithProcess);
 
-        public RelayCommand<object> TerminateCommand
-        {
-            get
-            {
-                return _terminateCommand ?? (_terminateCommand = new RelayCommand<object>(
-                           TerminateImplementation, CanDoWithProcess));
-            }
-        }
+        public RelayCommand<object> TerminateCommand =>
+            _terminateCommand ??= new RelayCommand<object>(
+                TerminateImplementation, CanDoWithProcess);
 
         public RelayCommand<object> FilterCommand
         {
             get
             {
-                return _filterCommand ?? (_filterCommand = new RelayCommand<object>(
-                           (o =>
-                           {
-                               _viewSource.View.Refresh();
-                               OnPropertyChanged("ViewSource");
-                           })));
+                return _filterCommand ??= new RelayCommand<object>(
+                    (o =>
+                    {
+                        _viewSource.View.Refresh();
+                        OnPropertyChanged(nameof(ViewSource));
+                    }));
             }
         }
 
@@ -133,27 +113,11 @@ namespace CSharp_05.ViewModels
 
         #region ProcessProps
 
-        public ProcessModuleCollection ProcessModules
-        {
-            get { return SelectedProcess.Value?.Modules; }
-        }
+        public ProcessModuleCollection ProcessModules => SelectedProcess.Value?.Modules;
 
-        public ProcessThreadCollection ProcessThreads
-        {
-            get { return SelectedProcess.Value?.Threads; }
-        }
+        public ProcessThreadCollection ProcessThreads => SelectedProcess.Value?.Threads;
 
-        public int ThreadsNumber
-        {
-            get
-            {
-                if (SelectedProcess.Value != null)
-                    return SelectedProcess.Value.Threads.Count;
-                else
-
-                    return 0;
-            }
-        }
+        public int ThreadsNumber => SelectedProcess.Value?.Threads.Count ?? 0;
 
         #endregion
 
@@ -165,13 +129,13 @@ namespace CSharp_05.ViewModels
             {
                 if (String.IsNullOrWhiteSpace(SelectedProcess.Value.FilePath))
                 {
-                    MessageBox.Show("Access denied");
+                    MessageBox.Show("Access denied", "Error");
                     return;
                 }
 
                 string argument = "/select, \"" + SelectedProcess.Value.FilePath + "\"";
                 Process.Start("explorer.exe", argument);
-            }));
+            }), _token);
             LoaderManager.Instance.HideLoader();
         }
 
@@ -183,13 +147,13 @@ namespace CSharp_05.ViewModels
                 try
                 {
                     SelectedProcess.Value.TerminateProcess();
-                    OnPropertyChanged("ViewSource");
+                    OnPropertyChanged(nameof(ViewSource));
                 }
                 catch (Exception e)
                 {
                     MessageBox.Show("Access denied");
                 }
-            });
+            }, _token);
             LoaderManager.Instance.HideLoader();
         }
 
@@ -233,7 +197,7 @@ namespace CSharp_05.ViewModels
                         return;
                 }
 
-                OnPropertyChanged("ViewSource");
+                OnPropertyChanged(nameof(ViewSource));
 
 
                 for (int j = 0; j < 10; j++)
@@ -260,7 +224,7 @@ namespace CSharp_05.ViewModels
                         return;
                 }
 
-                OnPropertyChanged("ViewSource");
+                OnPropertyChanged(nameof(ViewSource));
 
                 for (int j = 0; j < 4; j++)
                 {
@@ -321,8 +285,8 @@ namespace CSharp_05.ViewModels
                         return;
                 }
 
-                OnPropertyChanged("ViewSource");
-            });
+                OnPropertyChanged(nameof(ViewSource));
+            }, _token);
 
 
             LoaderManager.Instance.HideLoader();
@@ -338,4 +302,5 @@ namespace CSharp_05.ViewModels
             _workingThread2 = null;
         }
     }
+
 }
